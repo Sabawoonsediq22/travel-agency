@@ -1,6 +1,13 @@
 import {Outlet, redirect} from "react-router";
-import {SidebarComponent} from "@syncfusion/ej2-react-navigations";
-import {MobileSidebar, NavItems} from "../../../components";
+import MobileSidebar from "../../../components/MobileSidebar";
+import NavItems from "../../../components/NavItems";
+import {Button} from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {MenuIcon} from "lucide-react";
 import {getAccount} from "~/appwrite/client";
 import {getExistingUser, storeUserData} from "~/appwrite/auth";
 
@@ -29,9 +36,7 @@ const AdminLayout = () => {
             <MobileSidebar />
 
             <aside className="w-full max-w-[270px] hidden lg:block">
-                <SidebarComponent width={270} enableGestures={false}>
-                    <NavItems />
-                </SidebarComponent>
+                <NavItems />
             </aside>
 
             <aside className="children">

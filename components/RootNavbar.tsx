@@ -1,13 +1,15 @@
-import React from 'react'
 import {Link, useLoaderData, useLocation, useNavigate, useParams} from "react-router";
 import {logoutUser} from "~/appwrite/auth";
 import {cn} from "~/lib/utils";
+import {setSentryUser} from "~/lib/sentry";
 
 const RootNavbar = () => {
     const navigate = useNavigate();
     const location = useLocation()
     const params = useParams();
     const user = useLoaderData();
+
+    setSentryUser(user);
 
     const handleLogout = async () => {
         await logoutUser();
@@ -18,7 +20,7 @@ const RootNavbar = () => {
         <nav className={cn(location.pathname === `/travel/${params.tripId}` ? 'bg-white' : 'glassmorphism', 'w-full fixed z-50')}>
             <header className="root-nav wrapper">
                 <Link to='/' className="link-logo">
-                    <img src="/assets/icons/logo.svg" alt="logo" className="size-[30px]" />
+                    <img src="/assets/icons/logo.svg" alt="logo" className="size-7.5" />
                     <h1>Tourvisto</h1>
                 </Link>
 

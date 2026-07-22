@@ -1,4 +1,5 @@
 declare interface BaseUser {
+  $id: string;
   id: string;
   name: string;
   email: string;

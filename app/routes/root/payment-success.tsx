@@ -1,9 +1,10 @@
-import React, {useEffect} from 'react'
+import {useEffect} from 'react'
 import {Link, type LoaderFunctionArgs} from "react-router";
 import type { Route } from "./+types/payment-success";
-import {ButtonComponent} from "@syncfusion/ej2-react-buttons";
+import {Button} from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import {LEFT_CONFETTI, RIGHT_CONFETTI} from "~/constants";
+import {logPaymentSuccess} from "~/lib/sentry";
 
 export async function loader ({ params }: LoaderFunctionArgs) {
     return params;
@@ -13,6 +14,10 @@ const PaymentSuccess = ({ loaderData }: Route.ComponentProps) => {
     useEffect(() => {
         confetti(LEFT_CONFETTI)
         confetti(RIGHT_CONFETTI)
+
+        if (loaderData?.tripId) {
+            logPaymentSuccess(loaderData.tripId, 0);
+        }
     }, [])
 
     return (
@@ -25,24 +30,24 @@ const PaymentSuccess = ({ loaderData }: Route.ComponentProps) => {
                     <p>Your trip is booked - can't wait to have you on this adventure. Get ready to explore & make memories! ✨</p>
                     
                     <Link to={`/travel/${loaderData?.tripId}`} className="w-full">
-                        <ButtonComponent className="button-class !h-11 !w-full">
+                        <Button className="button-class !h-11 !w-full">
                             <img
                                 src="/assets/icons/itinerary-button.svg"
                                 className="size-5"
                             />
 
                             <span className="p-16-semibold text-white">View trip details</span>
-                        </ButtonComponent>
+                        </Button>
                     </Link>
                     <Link to={'/'} className="w-full">
-                        <ButtonComponent className="button-class-secondary !h-11 !w-full">
+                        <Button variant="secondary" className="button-class-secondary !h-11 !w-full">
                             <img
                                 src="/assets/icons/arrow-left.svg"
                                 className="size-5"
                             />
 
                             <span className="p-16-semibold">Return to homepage</span>
-                        </ButtonComponent>
+                        </Button>
                     </Link>
                 </article>
             </section>

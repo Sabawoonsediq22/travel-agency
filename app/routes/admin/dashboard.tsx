@@ -1,18 +1,12 @@
-import {Header, StatsCard, TripCard} from "../../../components";
+import Header from "../../../components/Header";
+import StatsCard from "../../../components/StatsCard";
+import TripCard from "../../../components/TripCard";
 import {getAllUsers, getUser} from "~/appwrite/auth";
 import type { Route } from './+types/dashboard';
 import {getTripsByTravelStyle, getUserGrowthPerDay, getUsersAndTripsStats} from "~/appwrite/dashboard";
 import {getAllTrips} from "~/appwrite/trips";
 import {parseTripData} from "~/lib/utils";
-import {
-    Category,
-    ChartComponent,
-    ColumnSeries,
-    DataLabel, SeriesCollectionDirective, SeriesDirective,
-    SplineAreaSeries,
-    Tooltip
-} from "@syncfusion/ej2-react-charts";
-import {ColumnDirective, ColumnsDirective, GridComponent, Inject} from "@syncfusion/ej2-react-grids";
+import {cn} from "~/lib/utils";
 import {tripXAxis, tripyAxis, userXAxis, useryAxis} from "~/constants";
 import {redirect} from "react-router";
 
@@ -129,59 +123,29 @@ const Dashboard = ({ loaderData }: Route.ComponentProps) => {
             </section>
 
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <ChartComponent
-                    id="chart-1"
-                    primaryXAxis={userXAxis}
-                    primaryYAxis={useryAxis}
-                    title="User Growth"
-                    tooltip={{ enable: true}}
-                >
-                    <Inject services={[ColumnSeries, SplineAreaSeries, Category, DataLabel, Tooltip]} />
+                <div className="bg-white p-6 rounded-xl shadow-300">
+                    <h3 className="text-lg font-semibold text-dark-100 mb-4">User Growth</h3>
+                    <div className="flex items-end gap-2 h-40">
+                        {userGrowth.map((item: any, i: number) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                <div className="w-full bg-primary-100 rounded-t-md" style={{ height: `${(item.count / Math.max(...userGrowth.map((u: any) => u.count))) * 100}%` }} />
+                                <span className="text-xs text-gray-100">{item.day}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                    <SeriesCollectionDirective>
-                        <SeriesDirective
-                            dataSource={userGrowth}
-                            xName="day"
-                            yName="count"
-                            type="Column"
-                            name="Column"
-                            columnWidth={0.3}
-                            cornerRadius={{topLeft: 10, topRight: 10}}
-                        />
-
-                        <SeriesDirective
-                            dataSource={userGrowth}
-                            xName="day"
-                            yName="count"
-                            type="SplineArea"
-                            name="Wave"
-                            fill="rgba(71, 132, 238, 0.3)"
-                            border={{ width: 2, color: '#4784EE'}}
-                        />
-                    </SeriesCollectionDirective>
-                </ChartComponent>
-
-                <ChartComponent
-                    id="chart-2"
-                    primaryXAxis={tripXAxis}
-                    primaryYAxis={tripyAxis}
-                    title="Trip Trends"
-                    tooltip={{ enable: true}}
-                >
-                    <Inject services={[ColumnSeries, SplineAreaSeries, Category, DataLabel, Tooltip]} />
-
-                    <SeriesCollectionDirective>
-                        <SeriesDirective
-                            dataSource={tripsByTravelStyle}
-                            xName="travelStyle"
-                            yName="count"
-                            type="Column"
-                            name="day"
-                            columnWidth={0.3}
-                            cornerRadius={{topLeft: 10, topRight: 10}}
-                        />
-                    </SeriesCollectionDirective>
-                </ChartComponent>
+                <div className="bg-white p-6 rounded-xl shadow-300">
+                    <h3 className="text-lg font-semibold text-dark-100 mb-4">Trip Trends</h3>
+                    <div className="flex items-end gap-2 h-40">
+                        {tripsByTravelStyle.map((item: any, i: number) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                <div className="w-full bg-success-700 rounded-t-md" style={{ height: `${(item.count / Math.max(...tripsByTravelStyle.map((t: any) => t.count))) * 100}%` }} />
+                                <span className="text-xs text-gray-100 truncate w-full text-center">{item.travelStyle}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </section>
 
             <section className="user-trip wrapper">
@@ -189,29 +153,29 @@ const Dashboard = ({ loaderData }: Route.ComponentProps) => {
                     <div key={i} className="flex flex-col gap-5">
                         <h3 className="p-20-semibold text-dark-100">{title}</h3>
 
-                        <GridComponent dataSource={dataSource} gridLines="None">
-                            <ColumnsDirective>
-                                <ColumnDirective
-                                    field="name"
-                                    headerText="Name"
-                                    width="200"
-                                    textAlign="Left"
-                                    template={(props: UserData) => (
-                                        <div className="flex items-center gap-1.5 px-4">
-                                            <img src={props.imageUrl} alt="user" className="rounded-full size-8 aspect-square" referrerPolicy="no-referrer" />
-                                            <span>{props.name}</span>
-                                        </div>
-                                    )}
-                                />
-
-                                <ColumnDirective
-                                    field={field}
-                                    headerText={headerText}
-                                    width="150"
-                                    textAlign="Left"
-                                />
-                            </ColumnsDirective>
-                        </GridComponent>
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b border-light-200">
+                                        <th className="text-left p-4 font-medium text-dark-100">Name</th>
+                                        <th className="text-left p-4 font-medium text-dark-100">{headerText}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dataSource.map((item: any, idx: number) => (
+                                        <tr key={idx} className="border-b border-light-200 hover:bg-light-300/50">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-1.5">
+                                                    <img src={item.imageUrl} alt={item.name} className="rounded-full size-8 aspect-square" referrerPolicy="no-referrer" />
+                                                    <span>{item.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">{item[field]}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 ))}
             </section>

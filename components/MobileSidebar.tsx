@@ -1,16 +1,13 @@
-// @ts-nocheck
-
 import {Link} from "react-router";
-import {SidebarComponent} from "@syncfusion/ej2-react-navigations";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import NavItems from "./NavItems";
+import {MenuIcon} from "lucide-react";
 
 const MobileSidebar = () => {
-    let sidebar: SidebarComponent;
-
-    const toggleSidebar = () => {
-        sidebar.toggle()
-    }
-
     return (
         <div className="mobile-sidebar wrapper">
             <header>
@@ -18,27 +15,21 @@ const MobileSidebar = () => {
                     <img
                         src="/assets/icons/logo.svg"
                         alt="Logo"
-                        className="size-[30px]"
+                        className="size-7.5"
                     />
 
                     <h1>Tourvisto</h1>
                 </Link>
 
-                <button onClick={toggleSidebar}>
-                    <img src="/assets/icons/menu.svg" alt="menu" className="size-7" />
-                </button>
+                <Sheet>
+                <SheetTrigger className="h-9 w-9 rounded-md flex items-center justify-center">
+                    <MenuIcon className="size-7" />
+                </SheetTrigger>
+                    <SheetContent side="left" className="w-67.5 p-0">
+                        <NavItems />
+                    </SheetContent>
+                </Sheet>
             </header>
-
-            <SidebarComponent
-                width={270}
-                ref={(Sidebar) => sidebar = Sidebar}
-                created={() => sidebar.hide()}
-                closeOnDocumentClick={true}
-                showBackdrop={true}
-                type="over"
-            >
-                <NavItems handleClick={toggleSidebar} />
-            </SidebarComponent>
         </div>
     )
 }

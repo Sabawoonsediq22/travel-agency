@@ -1,5 +1,5 @@
 import {Link, useLocation} from "react-router";
-import {ChipDirective, ChipListComponent, ChipsDirective} from "@syncfusion/ej2-react-buttons";
+import {Badge} from "@/components/ui/badge";
 import {cn, getFirstWord} from "~/lib/utils";
 
 const TripCard = ({ id, name, location, imageUrl, tags, price }: TripCardProps) => {
@@ -20,20 +20,18 @@ const TripCard = ({ id, name, location, imageUrl, tags, price }: TripCardProps) 
                 </figure>
             </article>
 
-            <div className="mt-5 pl-[18px] pr-3.5 pb-5">
-                <ChipListComponent id="travel-chip">
-                    <ChipsDirective>
-                        {tags?.map((tag, index) => (
-                            <ChipDirective
-                                key={index}
-                                text={getFirstWord(tag)}
-                                cssClass={cn(index===1
-                                ? '!bg-pink-50 !text-pink-500'
-                                : '!bg-success-50 !text-success-700')}
-                            />
-                        ))}
-                    </ChipsDirective>
-                </ChipListComponent>
+            <div className="mt-5 pl-[18px] pr-3.5 pb-5 flex flex-wrap gap-2">
+                {tags?.map((tag, index) => (
+                    <Badge
+                        key={index}
+                        variant={index === 1 ? "default" : "secondary"}
+                        className={cn(index === 1
+                            ? '!bg-pink-50 !text-pink-500'
+                            : '!bg-success-50 !text-success-700')}
+                    >
+                        {getFirstWord(tag)}
+                    </Badge>
+                ))}
             </div>
 
             <article className="tripCard-pill">{price}</article>

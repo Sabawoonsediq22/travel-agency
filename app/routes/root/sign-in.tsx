@@ -1,5 +1,5 @@
 import {Link, redirect} from "react-router";
-import {ButtonComponent} from "@syncfusion/ej2-react-buttons";
+import {Button} from "@/components/ui/button";
 import {loginWithGoogle} from "~/appwrite/auth";
 import {getAccount} from "~/appwrite/client";
 
@@ -35,9 +35,8 @@ const SignIn = () => {
                         <p className="p-18-regular text-center text-gray-100 !leading-7">Sign in with Google to manage destinations, itineraries, and user activity with ease.</p>
                     </article>
 
-                    <ButtonComponent
+                    <Button
                         type="button"
-                        iconCss="e-search-icon"
                         className="button-class !h-11 !w-full"
                         onClick={loginWithGoogle}
                     >
@@ -47,7 +46,7 @@ const SignIn = () => {
                             alt="google"
                         />
                         <span className="p-18-semibold text-white">Sign in with Google</span>
-                    </ButtonComponent>
+                    </Button>
                 </div>
             </section>
         </main>

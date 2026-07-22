@@ -1,11 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-@import "../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-react-buttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-react-grids/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-react-navigations/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-react-splitbuttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-react-dropdowns/styles/material.css";
 @import "tailwindcss";
 
 @theme {
@@ -480,65 +474,4 @@ body {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-}
-
-/* ======== css overrides for syncfusion ========= */
-.e-grid,
-.e-table {
-  border-color: #eef9ff !important;
-}
-
-.e-control {
-  border-radius: 12px !important;
-}
-
-.e-grid .e-gridheader {
-  border-color: #eef9ff !important;
-  border-radius: 12px 12px 0 0 !important;
-}
-
-.e-grid .e-row:nth-child(odd) {
-  background-color: #f9fbfc;
-}
-
-.e-grid .e-rowcell {
-  padding-top: 18px !important;
-  padding-bottom: 18px !important;
-}
-
-.e-sidebar.e-left {
-  border-right: 1px solid #ecf2ef;
-}
-.e-btn,
-.e-css.e-btn {
-  text-transform: none;
-}
-.e-dropdown-btn {
-  border-radius: 6px;
-  border: 1px solid #f0fef9;
-  background: #ffffff;
-  box-shadow:
-          0px 0px 3px 0px rgba(16, 24, 40, 0.1),
-          0px 0px 2px 0px rgba(16, 24, 40, 0.06);
-  height: 40px;
-}
-
-.e-dropdown-popup ul {
-  border-radius: 8px;
-  border: 1px solid #eaecf0;
-  background: #fff;
-  box-shadow:
-          0px 12px 16px -4px rgba(16, 24, 40, 0.1),
-          0px 4px 20px -2px rgba(16, 24, 40, 0.2);
-}
-.e-dropdown-popup ul .e-item {
-  padding-left: 36px;
-  padding-right: 36px;
-}
-/* e-input-group-icon e-ddl-icon e-search-icon */
-
-.e-input-group-icon {
-  position: absolute;
-  top: 45px;
-  right: 40px;
 }

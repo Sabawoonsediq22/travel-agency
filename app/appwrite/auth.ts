@@ -1,6 +1,7 @@
 import { ID, OAuthProvider, Query } from "appwrite";
 import { getAccount, getDatabase, appwriteConfig } from "~/appwrite/client";
 import { redirect } from "react-router";
+import * as Sentry from "@sentry/react-router";
 
 export const getExistingUser = async (id: string) => {
     try {
@@ -40,7 +41,16 @@ export const storeUserData = async () => {
         );
 
         if (!createdUser.$id) return redirect("/sign-in");
+
+        Sentry.setUser({
+            id: createdUser.$id,
+            email: user.email,
+            name: user.name,
+        });
     } catch (error) {
+        Sentry.captureException(error as Error, {
+            tags: { location: "storeUserData" },
+        });
         console.error("Error storing user data:", error);
     }
 };
@@ -76,7 +86,11 @@ export const loginWithGoogle = async () => {
 export const logoutUser = async () => {
     try {
         await getAccount().deleteSession("current");
+        Sentry.setUser(null);
     } catch (error) {
+        Sentry.captureException(error as Error, {
+            tags: { location: "logoutUser" },
+        });
         console.error("Error during logout:", error);
     }
 };
@@ -95,8 +109,19 @@ export const getUser = async () => {
             ]
         );
 
-        return documents.length > 0 ? documents[0] : redirect("/sign-in");
+        const userData = documents.length > 0 ? documents[0] as unknown as UserData : (redirect("/sign-in") as unknown as UserData);
+
+        Sentry.setUser({
+            id: userData.$id,
+            email: userData.email,
+            name: userData.name,
+        });
+
+        return userData;
     } catch (error) {
+        Sentry.captureException(error as Error, {
+            tags: { location: "getUser" },
+        });
         console.error("Error fetching user:", error);
         return null;
     }

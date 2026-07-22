@@ -4,6 +4,7 @@ import {parseMarkdownToJson, parseTripData} from "~/lib/utils";
 import {appwriteConfig, getDatabase} from "~/appwrite/client";
 import {ID} from "appwrite";
 import {createProduct} from "~/lib/stripe";
+import * as Sentry from "@sentry/react-router";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
     const {
@@ -15,6 +16,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         groupType,
         userId,
     } = await request.json();
+
+    Sentry.setTag("api.action", "create-trip");
+    Sentry.setContext("trip-form", { country, numberOfDays, travelStyle, interests, budget, groupType, userId });
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY!;
@@ -111,8 +115,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             }
         )
 
+        Sentry.captureMessage("Trip created successfully", "info");
         return data({ id: result.$id })
     } catch (e) {
+        Sentry.captureException(e as Error, {
+            tags: { location: "create-trip-action", country, travelStyle },
+            extra: { numberOfDays, interests, budget, groupType },
+        });
         console.error('Error generating travel plan: ', e);
         return data({ error: 'Failed to generate travel plan' }, { status: 500 });
     }

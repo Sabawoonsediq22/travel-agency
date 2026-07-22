@@ -1,12 +1,13 @@
 import {Link, type LoaderFunctionArgs, useSearchParams} from "react-router";
-import {ButtonComponent} from "@syncfusion/ej2-react-buttons";
+import {Button} from "@/components/ui/button";
 import {cn, parseTripData} from "~/lib/utils";
-import {Header, TripCard} from "../../../components";
+import Header from "../../../components/Header";
+import TripCard from "../../../components/TripCard";
 import {getAllTrips} from "~/appwrite/trips";
 import type {Route} from "./+types/travel-page";
 import {useState} from "react";
 import {getUser} from "~/appwrite/auth";
-import {PagerComponent} from "@syncfusion/ej2-react-grids";
+import {Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious} from "@/components/ui/pagination";
 
 const FeaturedDestination = ({ containerClass = '', bigCard = false, rating, title, activityCount, bgImage }: DestinationProps) => (
     <section className={cn('rounded-[14px] overflow-hidden bg-cover bg-center size-full min-w-[280px]', containerClass, bgImage)}>
@@ -83,11 +84,11 @@ const TravelPage = ({ loaderData }: Route.ComponentProps) => {
                         </article>
 
                         <Link to="#trips">
-                            <ButtonComponent type="button" className="button-class !h-11 !w-full md:!w-[240px]">
+                            <Button type="button" className="button-class !h-11 !w-full md:!w-[240px]">
                                 <span className="p-16-semibold text-white">
                                     Get Started
                                 </span>
-                            </ButtonComponent>
+                            </Button>
                         </Link>
                     </section>
                 </div>
@@ -167,13 +168,37 @@ const TravelPage = ({ loaderData }: Route.ComponentProps) => {
                     ))}
                 </div>
 
-                <PagerComponent
-                    totalRecordsCount={loaderData.total}
-                    pageSize={8}
-                    currentPage={currentPage}
-                    click={(args) => handlePageChange(args.currentPage)}
-                    cssClass="!mb-4"
-                />
+                <Pagination className="!mb-4">
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (currentPage > 1) handlePageChange(currentPage - 1);
+                                }}
+                                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink
+                                href={`?page=${currentPage}`}
+                                isActive
+                            >
+                                {currentPage}
+                            </PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    const totalPages = Math.ceil(loaderData.total / 8);
+                                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                                }}
+                                className={currentPage >= Math.ceil(loaderData.total / 8) ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
             </section>
 
             <footer className="h-28 bg-white">

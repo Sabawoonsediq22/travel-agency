@@ -1,10 +1,11 @@
-import {Header, TripCard} from "../../../components";
+import Header from "../../../components/Header";
+import TripCard from "../../../components/TripCard";
 import {type LoaderFunctionArgs, useSearchParams} from "react-router";
 import {getAllTrips, getTripById} from "~/appwrite/trips";
 import {parseTripData} from "~/lib/utils";
 import type {Route} from './+types/trips'
 import {useState} from "react";
-import {PagerComponent} from "@syncfusion/ej2-react-grids";
+import {Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious} from "@/components/ui/pagination";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const limit = 8;
@@ -65,13 +66,37 @@ const Trips = ({ loaderData }: Route.ComponentProps) => {
                     ))}
                 </div>
 
-                <PagerComponent
-                    totalRecordsCount={loaderData.total}
-                    pageSize={8}
-                    currentPage={currentPage}
-                    click={(args) => handlePageChange(args.currentPage)}
-                    cssClass="!mb-4"
-                />
+                <Pagination className="!mb-4">
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (currentPage > 1) handlePageChange(currentPage - 1);
+                                }}
+                                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink
+                                href={`?page=${currentPage}`}
+                                isActive
+                            >
+                                {currentPage}
+                            </PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    const totalPages = Math.ceil(loaderData.total / 8);
+                                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                                }}
+                                className={currentPage >= Math.ceil(loaderData.total / 8) ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
             </section>
         </main>
     )
