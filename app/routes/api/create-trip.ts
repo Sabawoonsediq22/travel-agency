@@ -21,7 +21,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     Sentry.setContext("trip-form", { country, numberOfDays, travelStyle, interests, budget, groupType, userId });
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY!;
+    const pexelsApiKey = process.env.PEXELS_API_KEY!;
 
     try {
         const prompt = `Generate a ${numberOfDays}-day travel itinerary for ${country} based on the following user information:
@@ -78,11 +78,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const trip = parseMarkdownToJson(textResult.response.text());
 
         const imageResponse = await fetch(
-            `https://api.unsplash.com/search/photos?query=${country} ${interests} ${travelStyle}&client_id=${unsplashApiKey}`
+            `https://api.pexels.com/v1/search?query=${encodeURIComponent(`${country} ${interests} ${travelStyle}`)}&per_page=3`,
+            {
+                headers: {
+                    Authorization: pexelsApiKey,
+                },
+            }
         );
 
-        const imageUrls = (await imageResponse.json()).results.slice(0, 3)
-            .map((result: any) => result.urls?.regular || null);
+        const imageData = await imageResponse.json();
+        const imageUrls = (imageData.photos || [])
+            .slice(0, 3)
+            .map((photo: any) => photo?.src?.medium || null);
 
         const result = await getDatabase().createDocument(
             appwriteConfig.databaseId,
