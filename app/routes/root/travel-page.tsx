@@ -6,7 +6,6 @@ import TripCard from "../../../components/TripCard";
 import {getAllTrips} from "~/appwrite/trips";
 import type {Route} from "./+types/travel-page";
 import {useState} from "react";
-import {getUser} from "~/appwrite/auth";
 import {Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious} from "@/components/ui/pagination";
 
 const FeaturedDestination = ({ containerClass = '', bigCard = false, rating, title, activityCount, bgImage }: DestinationProps) => (
@@ -40,10 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const page = parseInt(url.searchParams.get('page') || "1", 10);
     const offset = (page - 1) * limit;
 
-    const [user, { allTrips, total } ] = await Promise.all([
-        getUser(),
-        getAllTrips(limit, offset),
-    ])
+    const { allTrips, total } = await getAllTrips(limit, offset);
 
     return {
         trips: allTrips.map(({ $id, tripDetails, imageUrls }) => ({
