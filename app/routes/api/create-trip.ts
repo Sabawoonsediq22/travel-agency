@@ -1,9 +1,8 @@
 import {type ActionFunctionArgs, data} from "react-router";
-import {GoogleGenerativeAI} from "@google/generative-ai";
+import OpenAI from "openai";
 import {parseMarkdownToJson, parseTripData} from "~/lib/utils";
 import {appwriteConfig, getDatabase} from "~/appwrite/client";
 import {ID} from "appwrite";
-import {createProduct} from "~/lib/stripe";
 import * as Sentry from "@sentry/react-router";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -20,10 +19,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     Sentry.setTag("api.action", "create-trip");
     Sentry.setContext("trip-form", { country, numberOfDays, travelStyle, interests, budget, groupType, userId });
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const groqApiKey = process.env.GROQ_API_KEY!;
     const pexelsApiKey = process.env.PEXELS_API_KEY!;
 
     try {
+        const openai = new OpenAI({ apiKey: groqApiKey, baseURL: "https://api.groq.com/openai/v1" });
+
         const prompt = `Generate a ${numberOfDays}-day travel itinerary for ${country} based on the following user information:
         Budget: '${budget}'
         Interests: '${interests}'
@@ -71,11 +72,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ]
     }`;
 
-        const textResult = await genAI
-            .getGenerativeModel({ model: 'gemini-2.0-flash' })
-            .generateContent([prompt])
+        const chatCompletion = await openai.chat.completions.create({
+            model: "llama-3.1-8b-instant",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+        });
 
-        const trip = parseMarkdownToJson(textResult.response.text());
+        const textResult = chatCompletion.choices[0]?.message?.content || "";
+
+        const trip = parseMarkdownToJson(textResult);
 
         const imageResponse = await fetch(
             `https://api.pexels.com/v1/search?query=${encodeURIComponent(`${country} ${interests} ${travelStyle}`)}&per_page=3`,
@@ -100,25 +105,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
                 createdAt: new Date().toISOString(),
                 imageUrls,
                 userId,
-            }
-        )
-
-        const tripDetail = parseTripData(result.tripDetails) as Trip;
-        const tripPrice = parseInt(tripDetail.estimatedPrice.replace('$', ''), 10)
-        const paymentLink = await createProduct(
-            tripDetail.name,
-            tripDetail.description,
-            imageUrls,
-            tripPrice,
-            result.$id
-        )
-
-        await getDatabase().updateDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.tripCollectionId,
-            result.$id,
-            {
-                payment_link: paymentLink.url
             }
         )
 
