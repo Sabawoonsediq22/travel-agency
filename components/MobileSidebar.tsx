@@ -5,7 +5,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import NavItems from "./NavItems";
-import {MenuIcon} from "lucide-react";
+import {MenuIcon, XIcon} from "lucide-react";
 
 const MobileSidebar = () => {
     return (
@@ -22,7 +22,7 @@ const MobileSidebar = () => {
                 </Link>
 
                 <Sheet>
-                <SheetTrigger className="h-9 w-9 rounded-md flex items-center justify-center">
+                <SheetTrigger className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-light-300 transition-colors duration-150">
                     <MenuIcon className="size-7" />
                 </SheetTrigger>
                     <SheetContent side="left" className="w-67.5 p-0">

@@ -21,7 +21,7 @@ const PaymentSuccess = ({ loaderData }: Route.ComponentProps) => {
     }, [])
 
     return (
-        <main className="payment-success wrapper">
+        <main className="payment-success wrapper fade-in">
             <section>
                 <article>
                     <img src="/assets/icons/check.svg" className="size-24" />

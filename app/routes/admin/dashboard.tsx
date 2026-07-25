@@ -6,9 +6,7 @@ import type { Route } from './+types/dashboard';
 import {getTripsByTravelStyle, getUserGrowthPerDay, getUsersAndTripsStats} from "~/appwrite/dashboard";
 import {getAllTrips} from "~/appwrite/trips";
 import {parseTripData} from "~/lib/utils";
-import {cn} from "~/lib/utils";
-import {tripXAxis, tripyAxis, userXAxis, useryAxis} from "~/constants";
-import {redirect} from "react-router";
+import EmptyState from "../../../components/EmptyState";
 
 export const clientLoader = async () => {
     const [
@@ -75,15 +73,22 @@ const Dashboard = ({ loaderData }: Route.ComponentProps) => {
         }
     ]
 
-    return (
-        <main className="dashboard wrapper">
-            <Header
-                title={`Welcome ${user?.name ?? 'Guest'} 👋`}
-                description="Track activity, trends and popular destinations in real time"
-            />
+    const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
-            <section className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+    return (
+        <main className="dashboard wrapper fade-in">
+            <div className="welcome-banner">
+                <h1>Welcome back, {user?.name ?? 'Admin'} 👋</h1>
+                <p>Here's what's happening with your travel agency today &mdash; {today}</p>
+            </div>
+
+            <section className="flex flex-col gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
                     <StatsCard
                         headerTitle="Total Users"
                         total={dashboardStats.totalUsers}
@@ -104,75 +109,119 @@ const Dashboard = ({ loaderData }: Route.ComponentProps) => {
                     />
                 </div>
             </section>
-            <section className="container">
-                <h1 className="text-xl font-semibold text-dark-100">Created Trips</h1>
 
-                <div className='trip-grid'>
-                    {allTrips.map((trip) => (
-                        <TripCard
-                            key={trip.id}
-                            id={trip.id.toString()}
-                            name={trip.name!}
-                            imageUrl={trip.imageUrls[0]}
-                            location={trip.itinerary?.[0]?.location ?? ''}
-                            tags={[trip.interests!, trip.travelStyle!]}
-                            price={trip.estimatedPrice!}
-                        />
-                    ))}
+            <section className="container">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold text-dark-100">Created Trips</h1>
+                    {allTrips.length > 0 && (
+                        <a href="/trips" className="text-sm font-medium text-primary-100 hover:text-primary-500 transition-colors">
+                            View all
+                        </a>
+                    )}
                 </div>
+
+                {allTrips.length > 0 ? (
+                    <div className='trip-grid'>
+                        {allTrips.map((trip) => (
+                            <TripCard
+                                key={trip.id}
+                                id={trip.id.toString()}
+                                name={trip.name!}
+                                imageUrl={trip.imageUrls[0]}
+                                location={trip.itinerary?.[0]?.location ?? ''}
+                                tags={[trip.interests!, trip.travelStyle!]}
+                                price={trip.estimatedPrice!}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <EmptyState
+                        title="No trips yet"
+                        description="AI-generated trips will appear here once they are created."
+                        icon="/assets/icons/itinerary.svg"
+                    />
+                )}
             </section>
 
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div className="bg-white p-6 rounded-xl shadow-300">
-                    <h3 className="text-lg font-semibold text-dark-100 mb-4">User Growth</h3>
-                    <div className="flex items-end gap-2 h-40">
-                        {userGrowth.map((item: any, i: number) => (
-                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                <div className="w-full bg-primary-100 rounded-t-md" style={{ height: `${(item.count / Math.max(...userGrowth.map((u: any) => u.count))) * 100}%` }} />
-                                <span className="text-xs text-gray-100">{item.day}</span>
-                            </div>
-                        ))}
+                <div className="dashboard-chart-card">
+                    <h3>User Growth</h3>
+                    <div className="flex items-end gap-1.5 h-44">
+                        {userGrowth.length > 0 ? userGrowth.map((item: any, i: number) => {
+                            const maxCount = Math.max(...userGrowth.map((u: any) => u.count));
+                            const heightPercent = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+                            return (
+                                <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                                    <span className="text-[10px] font-medium text-dark-200">{item.count}</span>
+                                    <div className="w-full bg-primary-100/20 rounded-t-lg relative overflow-hidden" style={{ height: '100%' }}>
+                                        <div
+                                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-100 to-primary-50 rounded-t-lg transition-all duration-500"
+                                            style={{ height: `${heightPercent}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-[11px] font-medium text-gray-100">{item.day}</span>
+                                </div>
+                            );
+                        }) : (
+                            <p className="text-gray-100 text-sm w-full text-center py-8">No growth data available</p>
+                        )}
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-300">
-                    <h3 className="text-lg font-semibold text-dark-100 mb-4">Trip Trends</h3>
-                    <div className="flex items-end gap-2 h-40">
-                        {tripsByTravelStyle.map((item: any, i: number) => (
-                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                <div className="w-full bg-success-700 rounded-t-md" style={{ height: `${(item.count / Math.max(...tripsByTravelStyle.map((t: any) => t.count))) * 100}%` }} />
-                                <span className="text-xs text-gray-100 truncate w-full text-center">{item.travelStyle}</span>
-                            </div>
-                        ))}
+                <div className="dashboard-chart-card">
+                    <h3>Trip Trends</h3>
+                    <div className="flex items-end gap-1.5 h-44">
+                        {tripsByTravelStyle.length > 0 ? tripsByTravelStyle.map((item: any, i: number) => {
+                            const maxCount = Math.max(...tripsByTravelStyle.map((t: any) => t.count));
+                            const heightPercent = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+                            return (
+                                <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                                    <span className="text-[10px] font-medium text-dark-200">{item.count}</span>
+                                    <div className="w-full bg-success-700/10 rounded-t-lg relative overflow-hidden" style={{ height: '100%' }}>
+                                        <div
+                                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-success-700 to-success-500 rounded-t-lg transition-all duration-500"
+                                            style={{ height: `${heightPercent}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-[11px] font-medium text-gray-100 truncate w-full text-center">{item.travelStyle}</span>
+                                </div>
+                            );
+                        }) : (
+                            <p className="text-gray-100 text-sm w-full text-center py-8">No trip trend data available</p>
+                        )}
                     </div>
                 </div>
             </section>
 
-            <section className="user-trip wrapper">
+            <section className="user-trip">
                 {usersAndTrips.map(({ title, dataSource, field, headerText}, i) => (
-                    <div key={i} className="flex flex-col gap-5">
+                    <div key={i} className="flex flex-col gap-4 bg-white rounded-xl p-5 shadow-300">
                         <h3 className="p-20-semibold text-dark-100">{title}</h3>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
+                            <table className="dashboard-table">
                                 <thead>
-                                    <tr className="border-b border-light-200">
-                                        <th className="text-left p-4 font-medium text-dark-100">Name</th>
-                                        <th className="text-left p-4 font-medium text-dark-100">{headerText}</th>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>{headerText}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {dataSource.map((item: any, idx: number) => (
-                                        <tr key={idx} className="border-b border-light-200 hover:bg-light-300/50">
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-1.5">
+                                    {dataSource.length > 0 ? dataSource.map((item: any, idx: number) => (
+                                        <tr key={idx}>
+                                            <td>
+                                                <div className="flex items-center gap-2">
                                                     <img src={item.imageUrl} alt={item.name} className="rounded-full size-8 aspect-square" referrerPolicy="no-referrer" />
-                                                    <span>{item.name}</span>
+                                                    <span className="font-medium text-dark-100">{item.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-4">{item[field]}</td>
+                                            <td className="text-dark-200">{item[field]}</td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={2} className="text-center text-gray-100 py-8">No data available</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

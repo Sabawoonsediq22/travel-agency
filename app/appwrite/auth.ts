@@ -17,7 +17,7 @@ export const getExistingUser = async (id: string) => {
     }
 };
 
-export const storeUserData = async () => {
+export const storeUserData = async (status: "user" | "admin" = "user") => {
     try {
         const user = await getAccount().get();
         if (!user) throw new Error("User not found");
@@ -37,6 +37,7 @@ export const storeUserData = async () => {
                 name: user.name,
                 imageUrl: profilePicture,
                 joinedAt: new Date().toISOString(),
+                status: status,
             }
         );
 
@@ -47,6 +48,8 @@ export const storeUserData = async () => {
             email: user.email,
             name: user.name,
         });
+
+        return createdUser;
     } catch (error) {
         Sentry.captureException(error as Error, {
             tags: { location: "storeUserData" },
@@ -71,11 +74,12 @@ const getGooglePicture = async (accessToken: string) => {
     }
 };
 
-export const loginWithGoogle = async () => {
+export const loginWithGoogle = async (redirectTo?: string) => {
     try {
+        const successUrl = redirectTo || `${window.location.origin}/`;
         getAccount().createOAuth2Session(
             OAuthProvider.Google,
-            `${window.location.origin}/`,
+            successUrl,
             `${window.location.origin}/404`
         );
     } catch (error) {
@@ -142,4 +146,27 @@ export const getAllUsers = async (limit: number, offset: number) => {
         console.log('Error fetching users')
         return { users: [], total: 0 }
     }
+}
+
+export const updateUserRole = async (documentId: string, newStatus: "user" | "admin") => {
+    try {
+        await getDatabase().updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            documentId,
+            { status: newStatus }
+        );
+        return true;
+    } catch (error) {
+        console.error("Error updating user role:", error);
+        return false;
+    }
+}
+
+export const promoteUserToAdmin = async (documentId: string) => {
+    return updateUserRole(documentId, "admin");
+}
+
+export const demoteAdminToUser = async (documentId: string) => {
+    return updateUserRole(documentId, "user");
 }

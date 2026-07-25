@@ -16,15 +16,34 @@ import {
 import * as Sentry from "@sentry/react-router";
 
 export const loader = async () => {
-    const response = await fetch('https://restcountries.com/v3.1/all');
-    const data = await response.json();
+    try {
+        const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags,latlng,maps');
+        const data = await response.json();
 
-    return data.map((country: any) => ({
-        name: country.flag + country.name.common,
-        coordinates: country.latlng,
-        value: country.name.common,
-        openStreetMap: country.maps?.openStreetMap,
-    }))
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid response');
+        }
+
+        return data.map((country: any) => ({
+            name: country.flag + country.name.common,
+            coordinates: country.latlng,
+            value: country.name.common,
+            openStreetMap: country.maps?.openStreetMap,
+        }));
+    } catch {
+        return [
+            { name: "🇺🇸 United States", coordinates: [37.0902, -95.7129], value: "United States", openStreetMap: "https://www.openstreetmap.org/?mlat=37.0902&mlon=-95.7129" },
+            { name: "🇬🇧 United Kingdom", coordinates: [55.3781, -3.4360], value: "United Kingdom", openStreetMap: "https://www.openstreetmap.org/?mlat=55.3781&mlon=-3.4360" },
+            { name: "🇫🇷 France", coordinates: [46.2276, 2.2137], value: "France", openStreetMap: "https://www.openstreetmap.org/?mlat=46.2276&mlon=2.2137" },
+            { name: "🇮🇹 Italy", coordinates: [41.8719, 12.5674], value: "Italy", openStreetMap: "https://www.openstreetmap.org/?mlat=41.8719&mlon=12.5674" },
+            { name: "🇪🇸 Spain", coordinates: [40.4637, -3.7492], value: "Spain", openStreetMap: "https://www.openstreetmap.org/?mlat=40.4637&mlon=-3.7492" },
+            { name: "🇯🇵 Japan", coordinates: [36.2048, 138.2529], value: "Japan", openStreetMap: "https://www.openstreetmap.org/?mlat=36.2048&mlon=138.2529" },
+            { name: "🇦🇺 Australia", coordinates: [-25.2744, 133.7751], value: "Australia", openStreetMap: "https://www.openstreetmap.org/?mlat=-25.2744&mlon=133.7751" },
+            { name: "🇹🇭 Thailand", coordinates: [15.8700, 100.9925], value: "Thailand", openStreetMap: "https://www.openstreetmap.org/?mlat=15.87&mlon=100.9925" },
+            { name: "🇬🇷 Greece", coordinates: [39.0742, 21.8243], value: "Greece", openStreetMap: "https://www.openstreetmap.org/?mlat=39.0742&mlon=21.8243" },
+            { name: "🇲🇽 Mexico", coordinates: [23.6345, -102.5528], value: "Mexico", openStreetMap: "https://www.openstreetmap.org/?mlat=23.6345&mlon=-102.5528" },
+        ];
+    }
 }
 
 const CreateTrip = ({ loaderData }: Route.ComponentProps ) => {
@@ -105,7 +124,7 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps ) => {
     }
 
     return (
-        <main className="flex flex-col gap-10 pb-20 wrapper">
+        <main className="flex flex-col gap-10 pb-20 wrapper fade-in">
             <Header title="Add a New Trip" description="View and edit AI Generated travel plans" />
 
             <section className="mt-2.5 wrapper-md">
@@ -171,8 +190,9 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps ) => {
                     <div className="bg-gray-200 h-px w-full" />
 
                     {error && (
-                        <div className="error">
-                            <p>{error}</p>
+                        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-4 py-3 mx-6">
+                            <img src="/assets/icons/arrow-down-red.svg" className="size-4 shrink-0" alt="" />
+                            <p className="text-red-500 text-sm font-medium">{error}</p>
                         </div>
                     )}
                     <footer className="px-6 w-full">

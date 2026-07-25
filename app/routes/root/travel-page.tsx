@@ -1,4 +1,4 @@
-import {Link, type LoaderFunctionArgs, useSearchParams} from "react-router";
+import {Link, type LoaderFunctionArgs, useLoaderData, useSearchParams} from "react-router";
 import {Button} from "@/components/ui/button";
 import {cn, parseTripData} from "~/lib/utils";
 import Header from "../../../components/Header";
@@ -7,9 +7,10 @@ import {getAllTrips} from "~/appwrite/trips";
 import type {Route} from "./+types/travel-page";
 import {useState} from "react";
 import {Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious} from "@/components/ui/pagination";
+import EmptyState from "../../../components/EmptyState";
 
 const FeaturedDestination = ({ containerClass = '', bigCard = false, rating, title, activityCount, bgImage }: DestinationProps) => (
-    <section className={cn('rounded-[14px] overflow-hidden bg-cover bg-center size-full min-w-[280px]', containerClass, bgImage)}>
+    <section className={cn('rounded-[14px] overflow-hidden bg-cover bg-center size-full min-w-[280px] transition-transform duration-200 hover:scale-[1.02]', containerClass, bgImage)}>
         <div className="bg-linear200 h-full">
             <article className="featured-card">
                 <div className={cn('bg-white rounded-20 font-bold text-red-100 w-fit py-px px-3 text-sm')}>
@@ -53,6 +54,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const TravelPage = ({ loaderData }: Route.ComponentProps) => {
     const trips = loaderData.trips as Trip[] | [];
+    const parentData = useLoaderData();
+    const userName = parentData?.name || '';
 
     const [searchParams] = useSearchParams();
     const initialPage = Number(searchParams.get('page') || '1')
@@ -71,11 +74,13 @@ const TravelPage = ({ loaderData }: Route.ComponentProps) => {
                     <section className="wrapper">
                         <article>
                             <h1 className="p-72-bold text-dark-100">
-                                Plan Your Trip with Ease
+                                {userName ? `Welcome back, ${userName}` : 'Plan Your Trip with Ease'}
                             </h1>
 
                             <p className="text-dark-100">
-                                Customize your travel itinerary in minutes—pick your destination, set your preferences, and explore with confidence.
+                                {userName
+                                    ? "Ready for your next adventure? Explore destinations and personalized itineraries below."
+                                    : "Customize your travel itinerary in minutes — pick your destination, set your preferences, and explore with confidence."}
                             </p>
                         </article>
 
@@ -148,53 +153,63 @@ const TravelPage = ({ loaderData }: Route.ComponentProps) => {
             </section>
 
             <section id="trips" className="py-20 wrapper flex flex-col gap-10">
-                <Header title="Handpicked Trips" description="Browse well-planned trips designes for your travel style" />
+                <Header title="Handpicked Trips" description="Browse well-planned trips designed for your travel style" />
 
-                <div className="trip-grid">
-                    {trips.map((trip) => (
-                        <TripCard
-                            key={trip.id}
-                            id={trip.id}
-                            name={trip.name}
-                            imageUrl={trip.imageUrls[0]}
-                            location={trip.itinerary?.[0]?.location ?? ""}
-                            tags={[trip.interests, trip.travelStyle]}
-                            price={trip.estimatedPrice}
-                        />
-                    ))}
-                </div>
+                {trips.length > 0 ? (
+                    <>
+                        <div className="trip-grid">
+                            {trips.map((trip) => (
+                                <TripCard
+                                    key={trip.id}
+                                    id={trip.id}
+                                    name={trip.name}
+                                    imageUrl={trip.imageUrls[0]}
+                                    location={trip.itinerary?.[0]?.location ?? ""}
+                                    tags={[trip.interests, trip.travelStyle]}
+                                    price={trip.estimatedPrice}
+                                />
+                            ))}
+                        </div>
 
-                <Pagination className="!mb-4">
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    if (currentPage > 1) handlePageChange(currentPage - 1);
-                                }}
-                                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                            />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink
-                                href={`?page=${currentPage}`}
-                                isActive
-                            >
-                                {currentPage}
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    const totalPages = Math.ceil(loaderData.total / 8);
-                                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
-                                }}
-                                className={currentPage >= Math.ceil(loaderData.total / 8) ? "pointer-events-none opacity-50" : ""}
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
+                        <Pagination className="!mb-4">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (currentPage > 1) handlePageChange(currentPage - 1);
+                                        }}
+                                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationLink
+                                        href={`?page=${currentPage}`}
+                                        isActive
+                                    >
+                                        {currentPage}
+                                    </PaginationLink>
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            const totalPages = Math.ceil(loaderData.total / 8);
+                                            if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                                        }}
+                                        className={currentPage >= Math.ceil(loaderData.total / 8) ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </>
+                ) : (
+                    <EmptyState
+                        title="No trips available yet"
+                        description="Check back soon for new AI-generated travel itineraries and curated destinations."
+                        icon="/assets/icons/itinerary.svg"
+                    />
+                )}
             </section>
 
             <footer className="h-28 bg-white">

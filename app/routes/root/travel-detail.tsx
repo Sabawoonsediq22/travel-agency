@@ -51,7 +51,7 @@ const TravelDetail = ({ loaderData }: Route.ComponentProps) => {
     ]
 
     return (
-        <main className="travel-detail pt-40 wrapper">
+        <main className="travel-detail pt-40 wrapper fade-in">
             <div className="travel-div">
                 <Link to="/" className="back-link">
                     <img src="/assets/icons/arrow-left.svg" alt="back icon" />
@@ -81,7 +81,7 @@ const TravelDetail = ({ loaderData }: Route.ComponentProps) => {
                         <img
                             src={url}
                             key={i}
-                            className={cn('w-full rounded-xl object-cover', i === 0
+                            className={cn('w-full rounded-xl object-cover transition-transform duration-200 hover:scale-[1.01]', i === 0
                                 ? 'md:col-span-2 md:row-span-2 h-[330px]'
                                 : 'md:row-span-1 h-[150px]')}
                         />

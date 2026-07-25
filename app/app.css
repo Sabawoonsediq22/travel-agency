@@ -70,6 +70,26 @@
     @apply w-full min-h-screen  flex flex-col gap-10;
   }
 
+  .users-table {
+    @apply w-full border-collapse;
+    thead tr {
+      @apply border-b border-light-200;
+    }
+    th {
+      @apply text-left p-4 font-medium text-dark-100 text-sm;
+    }
+    td {
+      @apply p-4;
+    }
+    tbody tr {
+      @apply border-b border-light-200 transition-colors duration-150 hover:bg-light-300/50;
+    }
+  }
+
+  .users-table-mobile {
+    @apply flex flex-col gap-3 lg:hidden;
+  }
+
   .stats-card {
     @apply p-6 flex flex-col gap-6 bg-white shadow-400 rounded-20 text-dark-100;
 
@@ -85,6 +105,40 @@
     }
     article {
       @apply mt-9 mb-[30px] flex flex-col gap-3;
+    }
+  }
+
+  .role-tabs {
+    @apply flex gap-2 p-1 bg-light-300 rounded-xl w-full mt-6 mb-2;
+    button {
+      @apply flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer border-none outline-none;
+      &.role-tab-active {
+        @apply bg-white shadow-200 text-dark-100;
+      }
+      &.role-tab-inactive {
+        @apply bg-transparent text-gray-100 hover:text-dark-200 hover:bg-white/50;
+      }
+    }
+  }
+
+  .role-icon-wrapper {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl mx-auto mb-4;
+    &.admin-accent {
+      @apply bg-dark-300/10;
+    }
+    &.user-accent {
+      @apply bg-primary-50;
+    }
+  }
+
+  .auth-divider {
+    @apply flex items-center gap-3 my-2;
+    &::before, &::after {
+      content: '';
+      @apply flex-1 h-px bg-light-200;
+    }
+    span {
+      @apply text-xs text-gray-100 font-medium uppercase tracking-wider;
     }
   }
   .info-pill {
@@ -253,7 +307,7 @@
     }
   }
   .trip-card {
-    @apply shadow-300 bg-white rounded-[20px] flex-col w-full relative;
+    @apply shadow-300 bg-white rounded-[20px] flex-col w-full relative transition-all duration-200 hover:shadow-500 hover:-translate-y-1;
     img {
       @apply w-full h-[160px] rounded-t-xl object-cover aspect-video;
     }
@@ -271,24 +325,31 @@
     }
   }
   .link-logo {
-    @apply flex items-center gap-1.5 py-10 border-b border-light-100;
+    @apply flex items-center gap-1.5 py-6 border-b border-light-200;
     h1 {
-      @apply text-base md:text-2xl font-bold text-dark-100;
+      @apply text-base md:text-xl font-bold text-dark-100;
     }
   }
   .nav-footer {
-    @apply flex items-center gap-2.5 pb-8;
+    @apply flex flex-col gap-3 pb-6 pt-5 border-t border-light-200;
     img {
       @apply size-10 rounded-full aspect-square;
     }
     article {
-      @apply flex flex-col gap-[2px] max-w-[115px];
+      @apply flex flex-col gap-[2px] max-w-[140px];
       h2 {
         @apply text-sm md:text-base font-semibold text-dark-200 truncate;
       }
       p {
         @apply text-gray-100 text-xs md:text-sm font-normal truncate;
       }
+    }
+  }
+
+  .nav-back-to-site {
+    @apply flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-gray-100 hover:text-dark-100 hover:bg-light-300 transition-all duration-200 cursor-pointer mt-2;
+    img {
+      @apply size-4;
     }
   }
   .mobile-sidebar {
@@ -318,6 +379,23 @@
       }
     }
   }
+
+  .admin-nav-badge {
+    @apply inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200;
+  }
+
+  .user-dropdown {
+    @apply relative;
+    .dropdown-content {
+      @apply absolute right-0 top-12 bg-white rounded-xl shadow-200 border border-light-200 py-2 min-w-[180px] z-50 opacity-0 pointer-events-none translate-y-1 transition-all duration-200;
+    }
+    &:hover .dropdown-content, &.dropdown-open .dropdown-content {
+      @apply opacity-100 pointer-events-auto translate-y-0;
+    }
+    .dropdown-item {
+      @apply flex items-center gap-2.5 px-4 py-2.5 text-sm text-dark-200 hover:bg-light-300 cursor-pointer transition-colors duration-150;
+    }
+  }
   .footer-container {
     @apply flex justify-between items-center h-full gap-5;
     a {
@@ -340,11 +418,11 @@
     }
   }
   .nav-items {
-    @apply flex flex-col px-6 h-full;
+    @apply flex flex-col px-5 h-full;
     .container {
       @apply flex flex-col justify-between h-full;
       nav {
-        @apply flex flex-col gap-3.5 pt-9;
+        @apply flex flex-col gap-1.5 pt-6;
       }
     }
   }
@@ -352,8 +430,20 @@
   .admin-layout {
     @apply flex flex-col lg:flex-row h-screen w-full;
     .children {
-      @apply w-full h-full bg-light-200 pt-12 lg:pt-10;
+      @apply w-full h-full bg-light-200 pt-12 lg:pt-10 overflow-y-auto;
     }
+  }
+
+  .admin-sidebar {
+    @apply hidden lg:flex flex-col h-screen w-full max-w-[270px] bg-white border-r border-light-200;
+    position: sticky;
+    top: 0;
+  }
+
+  .admin-sidebar-content {
+    @apply flex flex-col h-full;
+    flex: 1;
+    min-height: 0;
   }
   .user-trip {
     @apply pb-20 flex flex-col lg:flex-row gap-5 justify-between;
@@ -364,13 +454,36 @@
   }
 
   .dashboard {
-    @apply flex flex-col gap-10 w-full  pb-20;
+    @apply flex flex-col gap-8 w-full pb-20;
 
     .container {
-      @apply flex flex-col gap-5 mt-2.5;
+      @apply flex flex-col gap-5;
       h1 {
         @apply text-xl font-semibold text-dark-100;
       }
+    }
+  }
+
+  .dashboard-chart-card {
+    @apply bg-white p-6 rounded-xl shadow-300 transition-shadow duration-200 hover:shadow-500;
+    h3 {
+      @apply text-lg font-semibold text-dark-100 mb-4;
+    }
+  }
+
+  .dashboard-table {
+    @apply w-full border-collapse;
+    thead tr {
+      @apply border-b border-light-200;
+    }
+    th {
+      @apply text-left p-4 font-medium text-dark-100 text-sm;
+    }
+    td {
+      @apply p-4;
+    }
+    tbody tr {
+      @apply border-b border-light-200 transition-colors duration-150 hover:bg-light-300/50;
     }
   }
   .featured-card {
@@ -455,8 +568,38 @@
   .trip-grid {
     @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7;
   }
-  .nav-item {
-    @apply flex items-center text-xs md:text-lg font-normal cursor-pointer gap-2.5 py-[18px] px-3.5 rounded-lg text-dark-200 hover:bg-primary-100 hover:text-white;
+  .admin-badge {
+    @apply inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-semibold;
+  }
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-16 px-6 text-center;
+    img {
+      @apply size-20 mb-6 opacity-60;
+    }
+    h3 {
+      @apply text-xl font-semibold text-dark-100 mb-2;
+    }
+    p {
+      @apply text-gray-100 text-sm md:text-base max-w-md mb-6;
+    }
+  }
+  .loading-spinner {
+    @apply flex items-center justify-center py-20;
+    div {
+      @apply size-10 border-4 border-light-200 border-t-primary-100 rounded-full animate-spin;
+    }
+  }
+  .skeleton {
+    @apply bg-light-300 rounded-lg animate-pulse;
+  }
+  .welcome-banner {
+    @apply flex flex-col gap-2 pb-6 border-b border-light-200;
+    h1 {
+      @apply text-2xl md:text-3xl font-bold text-dark-100;
+    }
+    p {
+      @apply text-gray-100 text-sm md:text-base;
+    }
   }
   .combo-box {
     @apply !p-3.5 !border w-full !border-light-400 !rounded-xl !text-base !text-dark-300 !font-normal;
@@ -474,4 +617,22 @@ body {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
