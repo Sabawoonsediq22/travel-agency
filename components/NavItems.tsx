@@ -55,7 +55,7 @@ const NavItems = ({ handleClick }: { handleClick?: () => void}) => {
                         </article>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                         <Link to="/" className="nav-back-to-site">
                             <img src="/assets/icons/arrow-left.svg" alt="" />
                             Back to Site
@@ -63,13 +63,13 @@ const NavItems = ({ handleClick }: { handleClick?: () => void}) => {
 
                         <button
                             onClick={handleLogout}
-                            className="cursor-pointer p-2 rounded-lg hover:bg-light-300 transition-colors duration-150"
+                            className="cursor-pointer p-2.5 rounded-xl border border-light-200 hover:bg-red-50 hover:border-red-100 transition-all duration-200 group"
                             title="Sign out"
                         >
                             <img
                                 src="/assets/icons/logout.svg"
                                 alt="logout"
-                                className="size-5"
+                                className="size-4 opacity-60 group-hover:opacity-100 group-hover:[filter:brightness(0)_saturate(100%)_invert(27%)_sepia(89%)_saturate(3000%)_hue-rotate(355deg)]"
                             />
                         </button>
                     </div>
